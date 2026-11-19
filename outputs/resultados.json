@@ -1,0 +1,77 @@
+{
+  "fonte": "https://www.ssp.sp.gov.br/estatistica/consultas",
+  "arquivos": [
+    "CelularesSubtraidos_2025.xlsx"
+  ],
+  "registros": 20000,
+  "classes": {
+    "furto": 6581,
+    "roubo": 13419
+  },
+  "divisao": {
+    "treino": 14000,
+    "validacao": 3000,
+    "teste": 3000
+  },
+  "atributos": [
+    "bairro",
+    "periodo",
+    "dia_semana"
+  ],
+  "arquiteturas": {
+    "MLP_1": {
+      "acuracia": 0.7033,
+      "precision": 0.7304,
+      "recall": 0.8843,
+      "f1": 0.8,
+      "epocas": 12,
+      "camadas": [
+        32
+      ],
+      "val_loss": 0.5649
+    },
+    "MLP_2": {
+      "acuracia": 0.696,
+      "precision": 0.7403,
+      "recall": 0.8425,
+      "f1": 0.7881,
+      "epocas": 12,
+      "camadas": [
+        64,
+        32
+      ],
+      "val_loss": 0.5691
+    },
+    "MLP_3": {
+      "acuracia": 0.701,
+      "precision": 0.745,
+      "recall": 0.843,
+      "f1": 0.791,
+      "epocas": 11,
+      "camadas": [
+        128,
+        64,
+        32
+      ],
+      "val_loss": 0.5687
+    }
+  },
+  "selecionada": "MLP_1",
+  "teste": {
+    "acuracia": 0.7117,
+    "precision": 0.7322,
+    "recall": 0.8992,
+    "f1": 0.8071
+  },
+  "matriz_confusao": [
+    [
+      325,
+      662
+    ],
+    [
+      203,
+      1810
+    ]
+  ],
+  "periodo": "Conferir o período dos arquivos originais da SSP-SP"
+}
