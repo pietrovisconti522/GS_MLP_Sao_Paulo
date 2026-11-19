@@ -3,6 +3,4 @@ __pycache__/
 .ipynb_checkpoints/
 data/*.csv
 data/*.xlsx
-outputs/*.pt
-outputs/*.joblib
 .DS_Store
