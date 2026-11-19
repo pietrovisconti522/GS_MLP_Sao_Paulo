@@ -1,46 +1,112 @@
-# Global Solution — Classificação de roubo e furto com MLP
+# Global Solution — Classificação de Roubo e Furto com MLP
 
-Projeto de classificação binária de ocorrências na **cidade de São Paulo**, baseado em dados públicos da SSP-SP. Não prevê se um crime ocorrerá.
+Projeto desenvolvido para a Global Solution da FIAP, utilizando redes neurais artificiais MLP (Multilayer Perceptron) para classificar ocorrências de roubo e furto de celulares na cidade de São Paulo.
 
-## Fonte e recorte
+O sistema utiliza dados públicos da Secretaria da Segurança Pública do Estado de São Paulo (SSP-SP).
 
-Fonte: https://www.ssp.sp.gov.br/estatistica/consultas — seção **Bases de Dados > Celulares subtraídos**. Baixe um arquivo CSV ou XLSX de **2025** e coloque-o em `data/`. O código filtra **cidade do fato = São Paulo**, não a delegacia do registro; mantém apenas rubricas exclusivamente de roubo ou furto; elimina boletins de classificação ambígua e registros repetidos por chave de BO. O recorte temporal efetivo deve ser confirmado no arquivo baixado.
+**Importante:** a aplicação classifica ocorrências registradas ou hipotéticas. Não prevê a ocorrência futura de crimes.
 
-Atributos: bairro do fato, período do dia (derivado da hora do fato) e dia da semana (derivado da data do fato). O rótulo vem de RUBRICA e **não é entrada da rede**. Sem nomes, endereços completos ou identificadores pessoais no modelo.
+## 1. Fonte dos dados
 
-## Execução (Windows / VS Code)
+Fonte: https://www.ssp.sp.gov.br/estatistica/consultas
+
+Base utilizada: Celulares Subtraídos — 2025.
+
+O projeto considera ocorrências da cidade de São Paulo, utilizando informações sobre bairro, período do dia e dia da semana.
+
+Foram utilizados 20.000 registros no treinamento e avaliação das redes neurais.
+
+## 2. Tecnologias utilizadas
+
+- Python
+- PyTorch
+- Pandas e NumPy
+- Scikit-learn
+- Matplotlib
+- Streamlit
+- Jupyter Notebook
+
+## 3. Metodologia
+
+O projeto utiliza três arquiteturas MLP:
+
+- MLP_1: uma camada oculta com 32 neurônios.
+- MLP_2: duas camadas ocultas com 64 e 32 neurônios.
+- MLP_3: três camadas ocultas com 128, 64 e 32 neurônios.
+
+Os dados foram divididos em 70% para treinamento, 15% para validação e 15% para teste.
+
+O pré-processamento utiliza One-Hot Encoding para transformar as variáveis categóricas em entradas numéricas.
+
+A seleção da melhor arquitetura considera o F1-score de validação.
+
+## 4. Resultados
+
+A arquitetura selecionada foi a MLP_1.
+
+**Resultados no conjunto de teste:**
+
+| Métrica | Resultado |
+|---|---|
+| Acurácia | 71,17% |
+| Precisão | 73,22% |
+| Recall | 89,92% |
+| F1-score | 80,71% |
+
+Os resultados correspondem ao experimento executado com 20.000 registros.
+
+## 5. Como executar
+
+No terminal do VS Code, dentro da pasta do projeto:
 
 ```powershell
-py -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-python modelo.py
-streamlit run app.py
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe modelo.py
+.\.venv\Scripts\python.exe gerar_relatorio.py
+.\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-O treinamento gera `outputs/modelo.pt`, `outputs/preprocessador.joblib`, `outputs/resultados.json`, `outputs/curvas.png` e `outputs/matriz_confusao.png`. Execute `python gerar_relatorio.py` para produzir `outputs/relatorio_10_slides.pdf` **após o treinamento**.
+O treinamento utiliza a planilha oficial colocada na pasta `data/` e gera os arquivos necessários em `outputs/`.
 
-## Notebook
+## 6. Arquivos do projeto
 
-Abra `analise_mlp.ipynb` no VS Code ou Jupyter, com o ambiente virtual selecionado, e execute todas as células na ordem.
+- `modelo.py`: preparação dos dados, treinamento e avaliação.
+- `app.py`: interface web para classificação.
+- `gerar_relatorio.py`: geração do relatório PDF.
+- `analise_mlp.ipynb`: notebook de análise.
+- `requirements.txt`: dependências do projeto.
+- `outputs/modelo.pt`: modelo treinado.
+- `outputs/preprocessador.joblib`: pré-processador.
+- `outputs/resultados.json`: métricas obtidas.
+- `outputs/curvas.png`: curvas de treinamento.
+- `outputs/matriz_confusao.png`: matriz de confusão.
+- `outputs/relatorio_10_slides.pdf`: apresentação técnica.
 
-## Metodologia
+## 7. Aplicação web
 
-- Divisão estratificada 70% treino, 15% validação e 15% teste, com semente 42.
-- One-hot encoding ajustado apenas no treino; desconhecidos são ignorados.
-- Três redes densas com ReLU, dropout 0,2 e saída logit binária.
-- BCEWithLogitsLoss, Adam (0,001), batch 128, até 60 épocas e early stopping (paciência 8).
-- Seleção por F1 na validação, desempate por acurácia; teste usado uma única vez ao final.
-- Acurácia, precision, recall e F1 usam **roubo** como classe positiva.
+**Site publicado:**
 
-## Aplicação online
+https://gs-mlp-sao-paulo.streamlit.app/
 
-**URL pública:** PENDENTE DE PUBLICAÇÃO. Para atender à entrega, publique no Streamlit Community Cloud conectando este repositório e definindo `app.py` como arquivo principal. Inclua os artefatos `modelo.pt` e `preprocessador.joblib` gerados a partir da base pública no repositório, ou configure um processo de geração no deploy. O `.gitignore` bloqueia os artefatos por padrão; para publicar, remova as duas regras de `outputs/` ou use `git add -f` para esses dois arquivos.
+O usuário seleciona o bairro, o período do dia e o dia da semana.
 
-## Limitações
+A aplicação retorna a classe estimada (roubo ou furto) e as probabilidades calculadas pelo modelo.
 
-A classificação usa apenas padrões de registros históricos e não substitui análise policial. Pode reproduzir vieses de notificação e variar por período. A deduplicação por BO evita contar vários itens do mesmo boletim como exemplos separados. Sem base oficial baixada, **não existem métricas legítimas nem modelo treinado**.
+## 8. Repositório GitHub
 
-## Uso de IA generativa
+https://github.com/pietrovisconti522/GS_MLP_Sao_Paulo
 
-IA generativa apoiou a implementação, a documentação e a organização do projeto. A equipe é responsável por executar, revisar e explicar o código e os resultados.
+## 9. Limitações
+
+O modelo utiliza padrões históricos dos registros da SSP-SP e não representa uma previsão de criminalidade.
+
+As classificações podem apresentar erros e sofrer influência de vieses presentes nos dados originais.
+
+As probabilidades apresentadas correspondem às estimativas do classificador, não às taxas de risco de ocorrência de crimes.
+
+## 10. Uso de inteligência artificial generativa
+
+Ferramentas de inteligência artificial generativa foram utilizadas como apoio à implementação, organização do código e documentação do projeto.
+
+A equipe é responsável pela execução, revisão e interpretação dos resultados.
